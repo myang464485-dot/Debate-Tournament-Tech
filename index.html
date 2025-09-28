@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Defense vs Prosecution Tournament</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f4f4f9; color: #333; text-align: center; }
+  h1 { margin-bottom: 10px; }
+  .bracket { display: flex; flex-direction: column; align-items: center; margin-top: 20px; }
+  .round { margin: 20px 0; }
+  .match { background: #fff; border: 1px solid #ccc; padding: 10px 15px; margin: 10px; border-radius: 8px; width: 250px; display: inline-block; }
+  .team { margin: 5px 0; }
+  input[type=number] { width: 50px; margin-left: 5px; }
+  button { margin-top: 5px; padding: 5px 10px; border-radius: 5px; border: none; background: #4CAF50; color: white; cursor: pointer; }
+  button:hover { background: #45a049; }
+  .control-panel { background: #fff; padding: 15px; border-radius: 8px; width: 300px; margin: 20px auto; border: 1px solid #ccc; }
+  label { display: block; margin: 10px 0 5px; }
+</style>
+</head>
+<body>
+<h1>Defense vs Prosecution Tournament</h1>
+
+<div class="bracket">
+  <!-- Round 1 -->
+  <div class="round">
+    <h2>Round 1</h2>
+    <div class="match" id="match1">
+      <div class="team">D1 (Team 1) <input type="number" id="score1D"></div>
+      <div class="team">P1 (Team 4) <input type="number" id="score1P"></div>
+      <button onclick="submitResult(1, 'W1')">Submit Result</button>
+    </div>
+    <div class="match" id="match2">
+      <div class="team">D2 (Team 2) <input type="number" id="score2D"></div>
+      <div class="team">P2 (Team 5) <input type="number" id="score2P"></div>
+      <button onclick="submitResult(2, 'W2')">Submit Result</button>
+    </div>
+    <div class="match" id="match3">
+      <div class="team">D3 (Team 3) <input type="number" id="score3D"></div>
+      <div class="team">P3 (Team 6) <input type="number" id="score3P"></div>
+      <button onclick="submitResult(3, 'W3')">Submit Result</button>
+    </div>
+  </div>
+
+  <!-- Semifinals -->
+  <div class="round">
+    <h2>Semifinals</h2>
+    <div class="match" id="semi1">
+      <div class="team" id="semi1D">Team ?</div>
+      <div class="team" id="semi1P">Team ?</div>
+      <input type="number" id="semi1ScoreD" placeholder="Score">
+      <input type="number" id="semi1ScoreP" placeholder="Score">
+      <button onclick="submitResult('semi1','F')">Submit Result</button>
+    </div>
+    <div class="match" id="semi2">
+      <div class="team" id="semi2D">Team ?</div>
+      <div class="team" id="semi2P">Team ?</div>
+      <input type="number" id="semi2ScoreD" placeholder="Score">
+      <input type="number" id="semi2ScoreP" placeholder="Score">
+      <button onclick="submitResult('semi2','F')">Submit Result</button>
+    </div>
+  </div>
+
+  <!-- Final -->
+  <div class="round">
+    <h2>Final</h2>
+    <div class="match" id="final">
+      <div class="team" id="final1">Team ?</div>
+      <div class="team" id="final2">Team ?</div>
+      <input type="number" id="finalScore1" placeholder="Score">
+      <input type="number" id="finalScore2" placeholder="Score">
+      <button onclick="submitResult('final','Champion')">Submit Result</button>
+    </div>
+  </div>
+</div>
+
+<!-- Control Panel for Manual Revival & Bye -->
+<div class="control-panel">
+  <h3>Manual Revival & Bye</h3>
+  <label for="revival">Revival Team (Team #):</label>
+  <input type="text" id="revival" placeholder="e.g., 4">
+  <label for="bye">Bye Team (Team #):</label>
+  <input type="text" id="bye" placeholder="e.g., 2">
+  <button onclick="applyRevivalBye()">Apply Revival / Bye</button>
+</div>
+
+<script>
+let winners = {};
+
+function submitResult(match, nextId) {
+  let scoreD, scoreP, teamD, teamP;
+  if (typeof match === 'number') {
+    scoreD = parseInt(document.getElementById('score'+match+'D').value);
+    scoreP = parseInt(document.getElementById('score'+match+'P').value);
+    teamD = document.querySelector('#match'+match+' .team:nth-child(1)').innerText.split(' ')[0];
+    teamP = document.querySelector('#match'+match+' .team:nth-child(2)').innerText.split(' ')[0];
+  } else {
+    scoreD = parseInt(document.getElementById(match+'ScoreD') ? document.getElementById(match+'ScoreD').value : document.getElementById(match+'Score1').value);
+    scoreP = parseInt(document.getElementById(match+'ScoreP') ? document.getElementById(match+'ScoreP').value : document.getElementById(match+'Score2').value);
+    teamD = document.getElementById(match+'D') ? document.getElementById(match+'D').innerText : document.getElementById(match+'1').innerText;
+    teamP = document.getElementById(match+'P') ? document.getElementById(match+'P').innerText : document.getElementById(match+'2').innerText;
+  }
+  if (isNaN(scoreD) || isNaN(scoreP)) {
+    alert("Please enter both scores.");
+    return;
+  }
+  let winner = scoreD >= scoreP ? teamD : teamP;
+  winners[nextId] = winner;
+  alert("Winner: " + winner);
+}
+
+function applyRevivalBye() {
+  let revivalTeam = document.getElementById('revival').value.trim();
+  let byeTeam = document.getElementById('bye').value.trim();
+  if (revivalTeam) {
+    if (!document.getElementById('semi1D').innerText.includes('Team')) {
+      document.getElementById('semi1D').innerText = "Team " + revivalTeam;
+    } else if (!document.getElementById('semi1P').innerText.includes('Team')) {
+      document.getElementById('semi1P').innerText = "Team " + revivalTeam;
+    } else if (!document.getElementById('semi2D').innerText.includes('Team')) {
+      document.getElementById('semi2D').innerText = "Team " + revivalTeam;
+    } else if (!document.getElementById('semi2P').innerText.includes('Team')) {
+      document.getElementById('semi2P').innerText = "Team " + revivalTeam;
+    }
+  }
+  if (byeTeam) {
+    if (!document.getElementById('final1').innerText.includes('Team')) {
+      document.getElementById('final1').innerText = "Team " + byeTeam;
+    } else if (!document.getElementById('final2').innerText.includes('Team')) {
+      document.getElementById('final2').innerText = "Team " + byeTeam;
+    }
+  }
+  alert("Applied Revival and Bye. Update semifinal/final slots as needed.");
+}
+</script>
+
+</body>
+</html>
